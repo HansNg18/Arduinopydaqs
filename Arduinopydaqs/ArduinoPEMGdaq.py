@@ -2,7 +2,11 @@
 """
 Created on Tue Dec  1 19:26:38 2020
 
-@author: HWu
+rate:sample rate of the system
+mode:
+    "measure": real-time prosthetic control
+    "calibration": calibrating the comfortable contraction lvs and rest lvs
+    "calibration_low":calibrating the rest lvs
 """
 
 import serial
