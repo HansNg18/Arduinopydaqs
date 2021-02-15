@@ -2,7 +2,7 @@
 """
 Created on Tue Dec  1 19:26:38 2020
 
-@author: simon
+@author: HWu
 """
 
 import serial
@@ -25,10 +25,12 @@ class ArduinoMKR_DAQ(_BaseDAQ):
                  rate = 50,
                  baudrate = 57600,
                  samples_per_read = 10,
+                 mode = 'measure',
                  port = None):
         self.baudrate = baudrate
         self.rate = rate
         self.samples_per_read=samples_per_read
+        self.mode = mode
         self.port=port
         self._newData = False
         self.buffer_string = ''
@@ -57,7 +59,11 @@ class ArduinoMKR_DAQ(_BaseDAQ):
         
     def start(self):
         #open the serial port
-        self.ser = serial.Serial(self.port, self.baudrate) 
+        self.ser = serial.Serial(self.port, self.baudrate)
+        if self.mode == 'calibration':
+            self.ser.write(b'CLC') 
+        elif self.mode == 'calibration_low':
+            self.ser.write(b'CLR')
         self._flag = True
         self._thread = Thread(target=self._run, daemon=True)
         self._thread.start()
@@ -98,7 +104,8 @@ class ArduinoMKR_DAQ(_BaseDAQ):
                 
     def stop(self):
         self._flag = False
-        self.ser.close()
+        if "self.ser" in locals():
+            self.ser.close()    
         
     def read(self):
         # When new data received, append it to the data array and export the 
@@ -126,6 +133,7 @@ class ArduinoMKR_DAQ(_BaseDAQ):
             
 
 if __name__ == '__main__':
+#     daq = ArduinoMKR_DAQ(samples_per_read = 1,rate = 250, mode = 'calibration')
     daq = ArduinoMKR_DAQ(samples_per_read = 1)
     daq.start()
     time.sleep(2)
