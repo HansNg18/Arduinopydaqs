@@ -133,7 +133,7 @@ class ArduinoMKR_DAQ(_BaseDAQ):
             
 
 if __name__ == '__main__':
-#     daq = ArduinoMKR_DAQ(samples_per_read = 1,rate = 250, mode = 'calibration')
+#     daq = ArduinoMKR_DAQ(samples_per_read = 1,rate = 125, mode = 'calibration')
     daq = ArduinoMKR_DAQ(samples_per_read = 1)
     daq.start()
     time.sleep(2)
