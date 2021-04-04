@@ -21,8 +21,8 @@ daq = ArduinoMKR_DAQ(samples_per_read=1)
 
 ## Hardware-specific package requirements
 Tested versions in brackets.
-* Arduino MKR ZERO (PEMG v2.x.x)
-* Arduino MKR 1010 (PEMG v3.x.x)
+* Arduino MKR ZERO (PEMG v2.2.x)
+* Arduino MKR 1010 (PEMG v3.2.x)
 
 
 ## Notes
