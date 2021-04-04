@@ -15,7 +15,9 @@ daq = ArduinoMKR_DAQ(samples_per_read=1)
 
 ## Requirements
 [Numpy](https://github.com/numpy/numpy) >= 1.11
+
 [Axopy](https://github.com/intellsensing/axopy)
+
 [pydaq](https://github.com/intellsensing/pydaqs)
 
 
