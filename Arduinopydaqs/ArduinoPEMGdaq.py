@@ -35,6 +35,8 @@ class ArduinoMKR_DAQ(_BaseDAQ):
         self.port=port
         self.ctrl=ctrl
         self._newData = False
+        self.unpackedDataArray=[]
+        self.data = []
         
         if self.mode == 'calibration':
             self.data_type = '<ffc' # Format to match arduino struct
@@ -144,10 +146,14 @@ class ArduinoMKR_DAQ(_BaseDAQ):
                 # The _newData flag turns true to indicate the update of the
                 # data
                 if self.ser.inWaiting()>=self.data_size:
-                    self.byteData = self.ser.read(self.data_size)
-                    self.unpackedData = unpack(self.data_type, self.byteData)
-                    self._newData = True
-                    time.sleep(1e-6) #small delay to avoid CPU running at 100% 
+                    byteData = self.ser.read(self.data_size)
+                    unpackedData = unpack(self.data_type, byteData)
+                    self.unpackedDataArray.append(unpackedData)
+                    if len(self.unpackedDataArray) >= self.samples_per_read:
+                        self.data = self.unpackedDataArray
+                        self.unpackedDataArray = []
+                        self._newData = True
+                        time.sleep(1e-6) #small delay to avoid CPU running at 100% 
             except (AttributeError, TypeError, SerialException, OSError):
                 # this way we can kill the thread by setting the board object
                 # to None, or when the serial port is closed by board.exit()
@@ -180,22 +186,17 @@ class ArduinoMKR_DAQ(_BaseDAQ):
         # data[i,j]:
         # i : number of channels
         # j : number of sample
-        if self._flag:       
-            data = []
-            while len(data) < self.samples_per_read:
-                if self._newData: 
-                    try:
-                        
-                        data.append(self.unpackedData)
-                    except IndexError:
-                        pass
-                    self._newData= False
-                time.sleep(1e-6) 
-                # self.sleeper.sleep()
-            data=np.array(data) #convert serial string to array 
-            data = data[:self.samples_per_read,:(len(data[0])-1)] #remove the end marker
-            data=data.astype(np.float).T #to match the data format for axopy
-            return data
+        if self._flag: 
+            while (not self._newData):
+                time.sleep(1e-6)
+            
+            dataset = self.data
+            self.data = []
+            dataset=np.array(dataset) #convert serial string to array 
+            dataset = dataset[:self.samples_per_read,:(len(dataset[0])-1)] #remove the end marker
+            dataset=dataset.astype(np.float).T #to match the data format for axopy
+            self._newData= False
+            return dataset
         else:
             raise SerialException("Serial port is closed.")
             
